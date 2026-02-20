@@ -1,0 +1,16 @@
+# Build — builder work, recon tests, no code review
+name: build
+inherits: _base
+description: Build task — skip code review, recon tests
+
+stages:
+  fixed:
+    skip: true
+
+  verified:
+    description: Build complete, awaiting recon testing
+    next: closed
+    fail: assigned
+    workers:
+      default: [recon]
+      builder: [recon]

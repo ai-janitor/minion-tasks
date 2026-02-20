@@ -1,0 +1,11 @@
+# Hotfix — emergency path, skip review and test
+name: hotfix
+inherits: _base
+description: Emergency fix — skip review and testing
+
+stages:
+  fixed:
+    skip: true
+
+  verified:
+    skip: true

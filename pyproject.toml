@@ -1,0 +1,25 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "minion-tasks"
+version = "0.1.0"
+description = "DAG-based task flow engine for minion-commsv2"
+requires-python = ">=3.10"
+dependencies = ["pyyaml>=6.0", "click>=8.0"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["minion_tasks"]
+
+[tool.hatch.build.targets.wheel.shared-data]
+"task-flows" = "share/minion-tasks/task-flows"
+
+[project.scripts]
+mtask = "minion_tasks.cli:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

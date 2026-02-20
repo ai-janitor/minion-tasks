@@ -1,0 +1,4 @@
+# Bugfix — full pipeline, no overrides
+name: bugfix
+inherits: _base
+description: Full pipeline — code review + testing required

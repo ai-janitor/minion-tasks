@@ -1,0 +1,27 @@
+# Research — recon work, oracle assessment, lead creates impl tasks
+name: research
+inherits: _base
+description: Recon investigation — oracle assesses findings, lead closes
+
+stages:
+  in_progress:
+    description: Recon actively investigating
+    next: fixed
+    requires: [submit_result]
+    workers: null
+
+  fixed:
+    description: Findings submitted, awaiting oracle assessment
+    next: verified
+    fail: assigned
+    workers:
+      default: [oracle]
+      recon: [oracle]
+
+  verified:
+    description: Oracle approved findings, lead reviews for impl tasks
+    next: closed
+    fail: assigned
+    workers:
+      default: [lead]
+      recon: [lead]

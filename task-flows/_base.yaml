@@ -1,0 +1,76 @@
+# =============================================================================
+# Task Flow DAG — Base Template
+# =============================================================================
+#
+# This file defines the default task lifecycle pipeline. Each task type
+# (bugfix.yaml, hotfix.yaml, etc.) inherits from this base and overrides
+# only what's different.
+#
+# HOW TO READ THIS FILE:
+#   - Each key under `stages:` is a task status (a node in the DAG)
+#   - `next:` is the happy-path transition (pass)
+#   - `fail:` is where the task goes on rejection (review/test fail)
+#   - `workers:` defines which agent classes can work this stage, keyed by
+#     the task's class_required. If a class isn't listed, it inherits `default`.
+#   - `requires:` lists preconditions before entering a stage
+#
+# HOW TO TUNE:
+#   - Add a new task type: copy this file, change what's different
+#   - Skip a stage: set `skip: true` in the type-specific YAML
+#   - Add a new agent class to a stage: add it under `workers:`
+#   - Change who reviews code: edit `workers:` under the `fixed` stage
+#
+# RULES:
+#   - Every stage must have `next:` (except terminal stages)
+#   - `workers: null` means the already-assigned agent continues
+#   - The system warns but doesn't block invalid transitions
+#   - Dead-end statuses (abandoned, stale, obsolete) are always available
+#
+# =============================================================================
+
+name: base
+description: Full pipeline — work, review, test, close
+
+stages:
+  open:
+    description: Task created, waiting for assignment
+    next: assigned
+    workers: null
+
+  assigned:
+    description: Agent assigned, hasn't started yet
+    next: in_progress
+    workers: null
+
+  in_progress:
+    description: Agent actively working
+    next: fixed
+    requires: [submit_result]
+    workers: null
+
+  fixed:
+    description: Work complete, awaiting code review
+    next: verified
+    fail: assigned
+    workers:
+      default: [oracle, recon]
+      coder: [oracle, recon]
+      builder: [recon]
+      recon: [oracle]
+
+  verified:
+    description: Review passed, awaiting testing
+    next: closed
+    fail: assigned
+    workers:
+      default: [builder, recon]
+      coder: [builder, recon]
+      builder: [recon]
+      recon: [lead]
+
+  closed:
+    description: Done — result accepted
+    terminal: true
+    workers: [lead]
+
+dead_ends: [abandoned, stale, obsolete]

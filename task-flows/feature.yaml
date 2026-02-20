@@ -1,0 +1,4 @@
+# Feature — same as bugfix (full pipeline)
+name: feature
+inherits: _base
+description: New feature — full code review + testing required
