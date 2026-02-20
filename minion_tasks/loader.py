@@ -9,8 +9,24 @@ import yaml
 from ._schema import REQUIRED_TOP_KEYS
 from .dag import Stage, TaskFlow
 
-# Package ships default flows alongside source
-_DEFAULT_FLOWS_DIR = Path(__file__).resolve().parent.parent / "task-flows"
+# Search order: env var, ~/.minion-tasks/task-flows/, bundled with package
+def _find_flows_dir() -> Path:
+    import os
+    import sysconfig
+
+    env = os.getenv("MINION_TASKS_FLOWS_DIR")
+    if env:
+        return Path(env)
+    user_dir = Path.home() / ".minion-tasks" / "task-flows"
+    if user_dir.exists():
+        return user_dir
+    shared = Path(sysconfig.get_path("data")) / "share" / "minion-tasks" / "task-flows"
+    if shared.exists():
+        return shared
+    return Path(__file__).resolve().parent.parent / "task-flows"
+
+
+_DEFAULT_FLOWS_DIR = _find_flows_dir()
 
 
 def _load_yaml(path: Path) -> dict:
